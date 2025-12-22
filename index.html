@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptown Kerst Games 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a12;
+            --accent-gold: #ffd700;
+            --accent-red: #ff3333;
+            --accent-blue: #4a7fff;
+            --text-light: #f0f0f5;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(255, 50, 50, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(74, 127, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #snow-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            animation: snowfall linear infinite;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 100px;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .badge span {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-family: 'Bowlby One', cursive;
+            font-size: clamp(3rem, 8vw, 5rem);
+            color: var(--text-light);
+            text-shadow:
+                0 0 40px rgba(255, 215, 0, 0.4),
+                4px 4px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 60px;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .games-grid {
+            display: grid;
+            gap: 30px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .game-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 50, 50, 0.1) 0%, rgba(74, 127, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 60px rgba(255, 215, 0, 0.1);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-title {
+            font-family: 'Bowlby One', cursive;
+            font-size: 2rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-players {
+            display: flex;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .player-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .player-tag.red {
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+        }
+
+        .player-tag.blue {
+            color: var(--accent-blue);
+            border: 1px solid rgba(74, 127, 255, 0.3);
+        }
+
+        .play-btn {
+            margin-top: 25px;
+            padding: 14px 40px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--bg-dark);
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #ffaa00 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover .play-btn {
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="snow-container"></div>
+
+    <div class="content">
+        <div class="badge">
+            <span>Uptown Kerst 2025</span>
+        </div>
+
+        <h1>Kerst Games</h1>
+        <p class="subtitle">Tijd voor wat feestelijk vermaak!</p>
+
+        <div class="games-grid">
+            <a href="autorace-kerst.html" class="game-card">
+                <div class="game-icon">🏎️💨</div>
+                <div class="game-title">Modderrace!</div>
+                <div class="game-description">Ontwijken maar... als je kan! Wie heeft de minste modder?</div>
+                <div class="game-players">
+                    <span class="player-tag red">Sandra</span>
+                    <span class="player-tag blue">Shenna</span>
+                </div>
+                <div class="play-btn">Spelen</div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        Fijne feestdagen!
+    </footer>
+
+    <script>
+        function createSnow() {
+            const container = document.getElementById('snow-container');
+            const snowflakes = ['❄', '❅', '❆', '✦', '✧'];
+
+            for (let i = 0; i < 40; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = (5 + Math.random() * 10) + 's';
+                snowflake.style.animationDelay = Math.random() * 10 + 's';
+                snowflake.style.fontSize = (0.5 + Math.random() * 1) + 'rem';
+                snowflake.style.opacity = 0.3 + Math.random() * 0.5;
+                container.appendChild(snowflake);
+            }
+        }
+        createSnow();
+    </script>
+</body>
+</html>

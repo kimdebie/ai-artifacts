@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandra vs Shenna - Modderrace!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sandra-neon: #ff3333;
+            --sandra-glow: rgba(255, 50, 50, 0.6);
+            --shenna-neon: #4a7fff;
+            --shenna-glow: rgba(74, 127, 255, 0.6);
+            --mud-color: #c9a227;
+            --mud-dark: #8b6914;
+            --bg-dark: #0a0a12;
+            --bg-road: #12121f;
+            --accent-gold: #ffd700;
+            --text-light: #f0f0f5;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(255, 50, 50, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(74, 127, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.03) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Snow particles container */
+        #snow-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            animation: snowfall linear infinite;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        #game-container {
+            width: 1000px;
+            height: 650px;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 2px rgba(255, 255, 255, 0.1),
+                0 25px 80px rgba(0, 0, 0, 0.8),
+                0 0 100px rgba(255, 50, 50, 0.15),
+                0 0 100px rgba(74, 127, 255, 0.15);
+            background: var(--bg-road);
+        }
+
+        /* Scanline effect */
+        #game-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ============================================
+           INTRO SCREEN
+           ============================================ */
+        #intro-screen {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 50, 50, 0.2) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 80%, rgba(74, 127, 255, 0.2) 0%, transparent 40%),
+                linear-gradient(180deg, #0a0a12 0%, #16162a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        #intro-screen.hidden {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+
+        .intro-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 100px;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .intro-badge span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .intro-title {
+            font-family: 'Bowlby One', cursive;
+            font-size: 5rem;
+            color: var(--text-light);
+            text-shadow:
+                0 0 40px rgba(255, 50, 50, 0.5),
+                0 0 80px rgba(74, 127, 255, 0.3),
+                4px 4px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            animation: titleGlow 3s ease-in-out infinite, fadeInUp 0.8s ease-out;
+            letter-spacing: -0.02em;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow:
+                    0 0 40px rgba(255, 50, 50, 0.5),
+                    0 0 80px rgba(74, 127, 255, 0.3),
+                    4px 4px 0 rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                text-shadow:
+                    0 0 60px rgba(255, 50, 50, 0.7),
+                    0 0 120px rgba(74, 127, 255, 0.5),
+                    4px 4px 0 rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        .intro-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .intro-players {
+            display: flex;
+            gap: 100px;
+            margin-bottom: 50px;
+        }
+
+        .player-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .player-card:nth-child(1) { animation-delay: 0.2s; }
+        .player-card .vs { animation-delay: 0.3s; }
+        .player-card:nth-child(3) { animation-delay: 0.4s; }
+
+        .player-car-preview {
+            width: 140px;
+            height: 65px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .car-body-preview {
+            position: absolute;
+            inset: 0;
+            border-radius: 12px 35px 8px 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .player-card:hover .car-body-preview {
+            transform: translateX(5px);
+        }
+
+        .player-card.sandra .car-body-preview {
+            background: linear-gradient(135deg, #ff4444 0%, #cc2222 100%);
+            box-shadow:
+                0 8px 30px var(--sandra-glow),
+                0 0 60px var(--sandra-glow),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .player-card.shenna .car-body-preview {
+            background: linear-gradient(135deg, #5588ff 0%, #2255bb 100%);
+            box-shadow:
+                0 8px 30px var(--shenna-glow),
+                0 0 60px var(--shenna-glow),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .car-body-preview::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 30px;
+            right: 15px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px 15px 0 0;
+            backdrop-filter: blur(2px);
+        }
+
+        .car-body-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15px;
+            right: 15px;
+            height: 8px;
+            background: #1a1a2e;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .car-wheels-preview {
+            position: absolute;
+            bottom: -5px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .wheel-preview {
+            width: 22px;
+            height: 22px;
+            background: radial-gradient(circle, #333 40%, #111 60%, #444 80%);
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .player-name {
+            font-family: 'Bowlby One', cursive;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .player-card.sandra .player-name {
+            color: var(--sandra-neon);
+            text-shadow: 0 0 30px var(--sandra-glow);
+        }
+
+        .player-card.shenna .player-name {
+            color: var(--shenna-neon);
+            text-shadow: 0 0 30px var(--shenna-glow);
+        }
+
+        .player-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .key {
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'Outfit', monospace;
+        }
+
+        .intro-vs {
+            font-family: 'Bowlby One', cursive;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            align-self: center;
+            animation: pulse 2s ease-in-out infinite, fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .start-btn {
+            padding: 22px 70px;
+            font-family: 'Bowlby One', cursive;
+            font-size: 1.6rem;
+            color: var(--bg-dark);
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #ffaa00 100%);
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow:
+                0 8px 40px rgba(255, 215, 0, 0.4),
+                0 0 60px rgba(255, 215, 0, 0.2),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow:
+                0 15px 50px rgba(255, 215, 0, 0.5),
+                0 0 80px rgba(255, 215, 0, 0.3);
+        }
+
+        .start-btn:hover::before {
+            left: 100%;
+        }
+
+        /* ============================================
+           GAME SCREEN
+           ============================================ */
+        #game-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-road);
+        }
+
+        #road {
+            position: absolute;
+            inset: 0;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 80px,
+                    rgba(255, 255, 255, 0.02) 80px,
+                    rgba(255, 255, 255, 0.02) 82px
+                ),
+                linear-gradient(180deg, #0d0d18 0%, #151525 100%);
+            overflow: hidden;
+        }
+
+        /* Road lines animation */
+        .road-lines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 150px,
+                rgba(255, 255, 255, 0.03) 150px,
+                rgba(255, 255, 255, 0.03) 152px
+            );
+            animation: roadMove 0.5s linear infinite;
+        }
+
+        @keyframes roadMove {
+            from { transform: translateX(0); }
+            to { transform: translateX(152px); }
+        }
+
+        .lane {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 50%;
+        }
+
+        .lane.sandra-lane {
+            top: 0;
+            border-bottom: 3px dashed rgba(255, 50, 50, 0.3);
+            background: linear-gradient(180deg, rgba(255, 50, 50, 0.03) 0%, transparent 100%);
+        }
+
+        .lane.shenna-lane {
+            top: 50%;
+            background: linear-gradient(0deg, rgba(74, 127, 255, 0.03) 0%, transparent 100%);
+        }
+
+        .lane-label {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Bowlby One', cursive;
+            font-size: 1rem;
+            letter-spacing: 0.15em;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sandra-lane .lane-label {
+            color: rgba(255, 45, 106, 0.4);
+            text-shadow: 0 0 20px var(--sandra-glow);
+        }
+
+        .shenna-lane .lane-label {
+            color: rgba(0, 245, 212, 0.4);
+            text-shadow: 0 0 20px var(--shenna-glow);
+        }
+
+        /* ============================================
+           CARS
+           ============================================ */
+        .car {
+            position: absolute;
+            width: 90px;
+            height: 45px;
+            left: 120px;
+            z-index: 10;
+            transition: top 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .car-body {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px 30px 6px 6px;
+        }
+
+        .car.sandra {
+            top: calc(25% - 22px);
+        }
+
+        .car.sandra .car-body {
+            background: linear-gradient(135deg, #ff4444 0%, #cc2222 100%);
+            box-shadow:
+                0 5px 25px var(--sandra-glow),
+                0 0 50px var(--sandra-glow),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .car.shenna {
+            top: calc(75% - 22px);
+        }
+
+        .car.shenna .car-body {
+            background: linear-gradient(135deg, #5588ff 0%, #2255bb 100%);
+            box-shadow:
+                0 5px 25px var(--shenna-glow),
+                0 0 50px var(--shenna-glow),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .car-body::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 25px;
+            right: 12px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 6px 12px 0 0;
+            backdrop-filter: blur(2px);
+        }
+
+        .car-wheels {
+            position: absolute;
+            bottom: -4px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .car-wheel {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle at 30% 30%, #444 0%, #111 70%);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            animation: wheelSpin 0.3s linear infinite;
+        }
+
+        @keyframes wheelSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Car exhaust/boost effect */
+        .car-exhaust {
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 15px;
+        }
+
+        .exhaust-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: exhaustPuff 0.4s ease-out infinite;
+        }
+
+        .car.sandra .exhaust-particle {
+            background: var(--sandra-neon);
+            box-shadow: 0 0 10px var(--sandra-glow);
+        }
+
+        .car.shenna .exhaust-particle {
+            background: var(--shenna-neon);
+            box-shadow: 0 0 10px var(--shenna-glow);
+        }
+
+        .exhaust-particle:nth-child(1) { animation-delay: 0s; left: 20px; }
+        .exhaust-particle:nth-child(2) { animation-delay: 0.1s; left: 12px; }
+        .exhaust-particle:nth-child(3) { animation-delay: 0.2s; left: 4px; }
+
+        @keyframes exhaustPuff {
+            0% { opacity: 0.8; transform: translateX(0) scale(1); }
+            100% { opacity: 0; transform: translateX(-15px) scale(0.3); }
+        }
+
+        /* Mud overlay on car */
+        .mud-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .mud-splat {
+            position: absolute;
+            background: radial-gradient(ellipse, var(--mud-color) 0%, var(--mud-dark) 50%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* ============================================
+           MUD PUDDLES
+           ============================================ */
+        .puddle {
+            position: absolute;
+            width: 70px;
+            height: 35px;
+            background:
+                radial-gradient(ellipse at 30% 30%, rgba(255, 200, 50, 0.3) 0%, transparent 40%),
+                radial-gradient(ellipse, var(--mud-color) 0%, var(--mud-dark) 70%, transparent 100%);
+            border-radius: 50%;
+            box-shadow:
+                inset 0 3px 10px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(201, 162, 39, 0.3);
+            z-index: 5;
+        }
+
+        .puddle::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            width: 20px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        /* Mud particles */
+        .mud-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--mud-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15;
+            box-shadow: 0 0 10px rgba(201, 162, 39, 0.5);
+        }
+
+        /* ============================================
+           TIMER
+           ============================================ */
+        #timer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 30px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .timer-icon {
+            font-size: 1.5rem;
+        }
+
+        .timer-value {
+            font-family: 'Bowlby One', cursive;
+            font-size: 2.5rem;
+            color: var(--text-light);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .timer-value.warning {
+            color: #ff6b6b;
+            animation: timerPulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ============================================
+           MUD METERS
+           ============================================ */
+        .mud-meter {
+            position: absolute;
+            right: 25px;
+            width: 45px;
+            height: 180px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            overflow: hidden;
+            z-index: 20;
+            backdrop-filter: blur(5px);
+        }
+
+        .mud-meter.sandra { top: 30px; }
+        .mud-meter.shenna { bottom: 30px; }
+
+        .mud-meter-fill {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            right: 4px;
+            background: linear-gradient(180deg, var(--mud-color) 0%, var(--mud-dark) 100%);
+            border-radius: 20px;
+            transition: height 0.3s ease;
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+        }
+
+        .mud-meter-label {
+            position: absolute;
+            right: 60px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mud-meter.sandra .mud-meter-label {
+            top: 75px;
+            color: var(--sandra-neon);
+        }
+        .mud-meter.shenna .mud-meter-label {
+            bottom: 75px;
+            color: var(--shenna-neon);
+        }
+
+        .mud-meter-icon {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+        }
+
+        /* ============================================
+           COUNTDOWN
+           ============================================ */
+        #countdown {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Bowlby One', cursive;
+            font-size: 12rem;
+            color: var(--text-light);
+            text-shadow:
+                0 0 60px rgba(255, 215, 0, 0.8),
+                0 0 120px rgba(255, 215, 0, 0.4);
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #countdown.visible {
+            animation: countdownPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes countdownPop {
+            0% { opacity: 0; transform: scale(3) rotate(-10deg); }
+            50% { opacity: 1; transform: scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: scale(0.8) rotate(5deg); }
+        }
+
+        /* ============================================
+           END SCREEN
+           ============================================ */
+        #end-screen {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 30%, rgba(201, 162, 39, 0.15) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a12 0%, #1a1520 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        #end-screen.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .end-header {
+            font-family: 'Bowlby One', cursive;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .end-cars {
+            display: flex;
+            gap: 100px;
+            margin-bottom: 50px;
+        }
+
+        .end-car-container {
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .end-car-container:nth-child(1) { animation-delay: 0.2s; }
+        .end-car-container:nth-child(2) { animation-delay: 0.4s; }
+
+        .end-car {
+            width: 140px;
+            height: 70px;
+            border-radius: 15px 40px 8px 8px;
+            position: relative;
+            margin-bottom: 20px;
+            background:
+                linear-gradient(135deg, var(--mud-color) 0%, var(--mud-dark) 100%);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .end-car::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(139, 105, 20, 0.8) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 60%, rgba(139, 105, 20, 0.9) 0%, transparent 35%),
+                radial-gradient(ellipse at 40% 80%, rgba(93, 78, 55, 0.7) 0%, transparent 45%);
+        }
+
+        .end-car::after {
+            content: '💩';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        .end-name {
+            font-family: 'Bowlby One', cursive;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .end-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--mud-color);
+        }
+
+        .end-message {
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .end-message-line1 {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .end-message-line2 {
+            font-family: 'Bowlby One', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #ffaa00 50%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+            background-size: 200% 100%;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .replay-btn {
+            margin-top: 40px;
+            padding: 18px 50px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+
+        .replay-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        /* ============================================
+           ANIMATIONS
+           ============================================ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes mudSplash {
+            0% { transform: scale(0) translate(0, 0); opacity: 1; }
+            100% { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snow particles -->
+    <div id="snow-container"></div>
+
+    <div id="game-container">
+        <!-- INTRO SCREEN -->
+        <div id="intro-screen">
+            <div class="intro-badge">
+                <span>🎄 Uptown Kerst Editie 2025 🎄</span>
+            </div>
+            <div class="intro-title">MODDERRACE!</div>
+            <div class="intro-subtitle">Ontwijken maar... als je kan!</div>
+
+            <div class="intro-players">
+                <div class="player-card sandra">
+                    <div class="player-car-preview">
+                        <div class="car-body-preview"></div>
+                        <div class="car-wheels-preview">
+                            <div class="wheel-preview"></div>
+                            <div class="wheel-preview"></div>
+                        </div>
+                    </div>
+                    <div class="player-name">SANDRA</div>
+                    <div class="player-controls">
+                        <span class="key">W</span>
+                        <span class="key">S</span>
+                    </div>
+                </div>
+
+                <div class="intro-vs">VS</div>
+
+                <div class="player-card shenna">
+                    <div class="player-car-preview">
+                        <div class="car-body-preview"></div>
+                        <div class="car-wheels-preview">
+                            <div class="wheel-preview"></div>
+                            <div class="wheel-preview"></div>
+                        </div>
+                    </div>
+                    <div class="player-name">SHENNA</div>
+                    <div class="player-controls">
+                        <span class="key">↑</span>
+                        <span class="key">↓</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startGame()">START RACE!</button>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen">
+            <div id="road">
+                <div class="road-lines"></div>
+                <div class="lane sandra-lane"><span class="lane-label">SANDRA</span></div>
+                <div class="lane shenna-lane"><span class="lane-label">SHENNA</span></div>
+            </div>
+
+            <!-- Sandra's car -->
+            <div class="car sandra" id="car-sandra">
+                <div class="car-body"></div>
+                <div class="car-wheels">
+                    <div class="car-wheel"></div>
+                    <div class="car-wheel"></div>
+                </div>
+                <div class="car-exhaust">
+                    <div class="exhaust-particle"></div>
+                    <div class="exhaust-particle"></div>
+                    <div class="exhaust-particle"></div>
+                </div>
+                <div class="mud-overlay" id="mud-sandra"></div>
+            </div>
+
+            <!-- Shenna's car -->
+            <div class="car shenna" id="car-shenna">
+                <div class="car-body"></div>
+                <div class="car-wheels">
+                    <div class="car-wheel"></div>
+                    <div class="car-wheel"></div>
+                </div>
+                <div class="car-exhaust">
+                    <div class="exhaust-particle"></div>
+                    <div class="exhaust-particle"></div>
+                    <div class="exhaust-particle"></div>
+                </div>
+                <div class="mud-overlay" id="mud-shenna"></div>
+            </div>
+
+            <div id="timer">
+                <div class="timer-container">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-value" id="timer-value">20</span>
+                </div>
+            </div>
+
+            <div class="mud-meter sandra">
+                <div class="mud-meter-fill" id="meter-sandra" style="height: 0%"></div>
+                <span class="mud-meter-label">Sandra</span>
+            </div>
+
+            <div class="mud-meter shenna">
+                <div class="mud-meter-fill" id="meter-shenna" style="height: 0%"></div>
+                <span class="mud-meter-label">Shenna</span>
+            </div>
+
+            <div id="countdown"></div>
+        </div>
+
+        <!-- END SCREEN -->
+        <div id="end-screen">
+            <div class="end-header">🏁 RACE VOORBIJ! 🏁</div>
+            <div class="end-cars">
+                <div class="end-car-container">
+                    <div class="end-car"></div>
+                    <div class="end-name">Sandra</div>
+                    <div class="end-score" id="score-sandra">0% modder</div>
+                </div>
+                <div class="end-car-container">
+                    <div class="end-car"></div>
+                    <div class="end-name">Shenna</div>
+                    <div class="end-score" id="score-shenna">0% modder</div>
+                </div>
+            </div>
+            <div class="end-message">
+                <div class="end-message-line1">Even naar...</div>
+                <div class="end-message-line2">🧽 Bas Autowas! 🧽</div>
+            </div>
+            <button class="replay-btn" onclick="resetGame()">🔄 Nog een keer!</button>
+        </div>
+    </div>
+
+    <script>
+        // Create snow particles
+        function createSnow() {
+            const container = document.getElementById('snow-container');
+            const snowflakes = ['❄', '❅', '❆', '✦', '✧'];
+
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = (5 + Math.random() * 10) + 's';
+                snowflake.style.animationDelay = Math.random() * 10 + 's';
+                snowflake.style.fontSize = (0.5 + Math.random() * 1) + 'rem';
+                snowflake.style.opacity = 0.3 + Math.random() * 0.5;
+                container.appendChild(snowflake);
+            }
+        }
+        createSnow();
+
+        // Game state
+        let gameRunning = false;
+        let timeLeft = 20;
+        let gameInterval;
+        let puddleInterval;
+        let puddles = [];
+
+        // Car positions (vertical lanes)
+        let sandraLane = 1;
+        let shennaLane = 1;
+
+        // Mud levels
+        let sandraMud = 0;
+        let shennaMud = 0;
+        const maxMud = 100;
+
+        // Mud splat tracking
+        let sandraSplats = 0;
+        let shennaSplats = 0;
+
+        // Elements
+        const carSandra = document.getElementById('car-sandra');
+        const carShenna = document.getElementById('car-shenna');
+        const mudSandra = document.getElementById('mud-sandra');
+        const mudShenna = document.getElementById('mud-shenna');
+        const meterSandra = document.getElementById('meter-sandra');
+        const meterShenna = document.getElementById('meter-shenna');
+        const timerEl = document.getElementById('timer-value');
+        const introScreen = document.getElementById('intro-screen');
+        const endScreen = document.getElementById('end-screen');
+        const countdown = document.getElementById('countdown');
+        const road = document.getElementById('road');
+
+        // Lane positions in pixels (within each player's half)
+        function getSandraY(lane) {
+            return 55 + lane * 75;
+        }
+
+        function getShennaY(lane) {
+            return 380 + lane * 75;
+        }
+
+        // Update car positions
+        function updateCarPositions() {
+            carSandra.style.top = getSandraY(sandraLane) + 'px';
+            carShenna.style.top = getShennaY(shennaLane) + 'px';
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+
+            // Sandra: W/S
+            if (e.key === 'w' || e.key === 'W') {
+                sandraLane = Math.max(0, sandraLane - 1);
+                updateCarPositions();
+            } else if (e.key === 's' || e.key === 'S') {
+                sandraLane = Math.min(2, sandraLane + 1);
+                updateCarPositions();
+            }
+
+            // Shenna: Arrow Up/Down
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                shennaLane = Math.max(0, shennaLane - 1);
+                updateCarPositions();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                shennaLane = Math.min(2, shennaLane + 1);
+                updateCarPositions();
+            }
+        });
+
+        // Create a mud puddle
+        function createPuddle(forSandra) {
+            const puddle = document.createElement('div');
+            puddle.className = 'puddle';
+
+            const lane = Math.floor(Math.random() * 3);
+            const y = forSandra ? getSandraY(lane) : getShennaY(lane);
+
+            puddle.style.right = '-80px';
+            puddle.style.top = (y + 5) + 'px';
+            puddle.dataset.lane = lane;
+            puddle.dataset.player = forSandra ? 'sandra' : 'shenna';
+
+            road.appendChild(puddle);
+            puddles.push(puddle);
+
+            let pos = -80;
+            const speed = 8 + Math.random() * 4;
+
+            function movePuddle() {
+                if (!gameRunning) return;
+
+                pos += speed;
+                puddle.style.right = pos + 'px';
+
+                if (pos >= 720 && pos <= 800) {
+                    const playerLane = forSandra ? sandraLane : shennaLane;
+                    if (parseInt(puddle.dataset.lane) === playerLane) {
+                        if (forSandra) {
+                            addMud('sandra', 8 + Math.random() * 7);
+                        } else {
+                            addMud('shenna', 8 + Math.random() * 7);
+                        }
+                        createMudSplash(puddle, forSandra);
+                        puddle.remove();
+                        puddles = puddles.filter(p => p !== puddle);
+                        return;
+                    }
+                }
+
+                if (pos > 1100) {
+                    puddle.remove();
+                    puddles = puddles.filter(p => p !== puddle);
+                    return;
+                }
+
+                requestAnimationFrame(movePuddle);
+            }
+
+            requestAnimationFrame(movePuddle);
+        }
+
+        // Create mud splash effect
+        function createMudSplash(puddle, forSandra) {
+            const rect = puddle.getBoundingClientRect();
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'mud-particle';
+                particle.style.left = (rect.left - containerRect.left + 35) + 'px';
+                particle.style.top = (rect.top - containerRect.top + 17) + 'px';
+
+                const angle = Math.random() * Math.PI - Math.PI / 2;
+                const distance = 40 + Math.random() * 60;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.setProperty('--ty', ty + 'px');
+                particle.style.animation = 'mudSplash 0.5s ease-out forwards';
+
+                road.appendChild(particle);
+
+                setTimeout(() => particle.remove(), 500);
+            }
+        }
+
+        // Add mud to car
+        function addMud(player, amount) {
+            if (player === 'sandra') {
+                sandraMud = Math.min(maxMud, sandraMud + amount);
+                meterSandra.style.height = (sandraMud * 0.95) + '%';
+                addMudSplat(mudSandra, sandraSplats++);
+            } else {
+                shennaMud = Math.min(maxMud, shennaMud + amount);
+                meterShenna.style.height = (shennaMud * 0.95) + '%';
+                addMudSplat(mudShenna, shennaSplats++);
+            }
+        }
+
+        // Add visual mud splat to car
+        function addMudSplat(mudOverlay, splatIndex) {
+            const splat = document.createElement('div');
+            splat.className = 'mud-splat';
+
+            const size = 18 + Math.random() * 30;
+            splat.style.width = size + 'px';
+            splat.style.height = (size * 0.6) + 'px';
+            splat.style.left = (Math.random() * 65) + 'px';
+            splat.style.top = (Math.random() * 35) + 'px';
+            splat.style.opacity = 0.7 + Math.random() * 0.3;
+
+            mudOverlay.appendChild(splat);
+        }
+
+        // Start the game
+        async function startGame() {
+            introScreen.classList.add('hidden');
+
+            // Countdown
+            for (let i = 3; i >= 1; i--) {
+                countdown.textContent = i;
+                countdown.classList.add('visible');
+                await sleep(600);
+                countdown.classList.remove('visible');
+                await sleep(200);
+            }
+
+            countdown.textContent = 'GO!';
+            countdown.style.color = '#4a7fff';
+            countdown.classList.add('visible');
+            await sleep(500);
+            countdown.classList.remove('visible');
+            countdown.style.color = '';
+
+            // Start game
+            gameRunning = true;
+            timeLeft = 20;
+
+            // Game timer
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+
+                if (timeLeft <= 5) {
+                    timerEl.classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            // Spawn puddles
+            puddleInterval = setInterval(() => {
+                if (Math.random() > 0.3) createPuddle(true);
+                if (Math.random() > 0.3) createPuddle(false);
+            }, 550);
+        }
+
+        // End the game
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameInterval);
+            clearInterval(puddleInterval);
+
+            puddles.forEach(p => p.remove());
+            puddles = [];
+
+            document.getElementById('score-sandra').textContent = Math.round(sandraMud) + '% modder';
+            document.getElementById('score-shenna').textContent = Math.round(shennaMud) + '% modder';
+
+            setTimeout(() => {
+                endScreen.classList.add('visible');
+            }, 500);
+        }
+
+        // Reset game
+        function resetGame() {
+            endScreen.classList.remove('visible');
+
+            sandraMud = 0;
+            shennaMud = 0;
+            sandraSplats = 0;
+            shennaSplats = 0;
+            meterSandra.style.height = '0%';
+            meterShenna.style.height = '0%';
+            mudSandra.innerHTML = '';
+            mudShenna.innerHTML = '';
+
+            sandraLane = 1;
+            shennaLane = 1;
+            updateCarPositions();
+
+            timerEl.textContent = '20';
+            timerEl.classList.remove('warning');
+
+            introScreen.classList.remove('hidden');
+        }
+
+        // Utility
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize
+        updateCarPositions();
+    </script>
+</body>
+</html>
